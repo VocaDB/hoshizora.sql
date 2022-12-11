@@ -2,6 +2,7 @@ import { ArtistForArtist } from '@/entities/ArtistForArtist';
 import { EnglishTranslatedString } from '@/entities/EnglishTranslatedString';
 import { ArtistName } from '@/entities/Name';
 import { ArtistPictureFile } from '@/entities/PictureFile';
+import { ArtistTagUsage } from '@/entities/TagUsage';
 import { TranslatedString } from '@/entities/TranslatedString';
 import { ArtistWebLink } from '@/entities/WebLink';
 import {
@@ -70,6 +71,9 @@ export class Artist {
 
 	@Property()
 	releaseDate?: Date;
+
+	@OneToMany(() => ArtistTagUsage, (tagUsage) => tagUsage.artist)
+	tagUsages = new Collection<ArtistTagUsage>(this);
 
 	@Embedded(() => TranslatedString, { prefix: false })
 	translatedName!: TranslatedString;

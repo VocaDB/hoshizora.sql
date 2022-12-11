@@ -2,6 +2,7 @@ import { ArtistForReleaseEvent } from '@/entities/ArtistForReleaseEvent';
 import { ReleaseEventName } from '@/entities/Name';
 import { PVForReleaseEvent } from '@/entities/PV';
 import { ReleaseEventSeries } from '@/entities/ReleaseEventSeries';
+import { ReleaseEventTagUsage } from '@/entities/TagUsage';
 import { TranslatedString } from '@/entities/TranslatedString';
 import { ReleaseEventWebLink } from '@/entities/WebLink';
 import {
@@ -65,6 +66,9 @@ export class ReleaseEvent {
 
 	/* TODO: @ManyToOne()
 	songList?: Ref<SongList>;*/
+
+	@OneToMany(() => ReleaseEventTagUsage, (tagUsage) => tagUsage.releaseEvent)
+	tagUsages = new Collection<ReleaseEventTagUsage>(this);
 
 	@Embedded(() => TranslatedString, { prefix: false })
 	translatedName!: TranslatedString;

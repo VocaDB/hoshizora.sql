@@ -1,5 +1,6 @@
 import { ReleaseEventCategory } from '@/entities/ReleaseEvent';
 import { ArchivedPVContract } from '@/models/ArchivedPVContract';
+import { ArchivedTagUsageContract } from '@/models/ArchivedTagUsageContract';
 import { ArchivedTranslatedStringContract } from '@/models/ArchivedTranslatedStringContract';
 import { ArchivedWebLinkContract } from '@/models/ArchivedWebLinkContract';
 import { LocalizedStringContract } from '@/models/LocalizedStringContract';
@@ -21,6 +22,7 @@ export interface ArchivedReleaseEventContract {
 	series?: ObjectRefContract;
 	seriesNumber: number;
 	songList?: ObjectRefContract;
+	tags: ArchivedTagUsageContract[];
 	translatedName: ArchivedTranslatedStringContract;
 	venue?: ObjectRefContract;
 	venueName?: string;

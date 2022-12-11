@@ -1,6 +1,7 @@
 import { TranslationType } from '@/entities/LyricsForSong';
 import { SongType } from '@/entities/Song';
 import { ArchivedPVContract } from '@/models/ArchivedPVContract';
+import { ArchivedTagUsageContract } from '@/models/ArchivedTagUsageContract';
 import { ArchivedTranslatedStringContract } from '@/models/ArchivedTranslatedStringContract';
 import { ArchivedWebLinkContract } from '@/models/ArchivedWebLinkContract';
 import { LocalizedStringContract } from '@/models/LocalizedStringContract';
@@ -36,6 +37,7 @@ export interface ArchivedSongContract {
 	pvs?: ArchivedPVContract[];
 	releaseEvent?: ObjectRefContract;
 	songType: SongType;
+	tags: ArchivedTagUsageContract[];
 	translatedName: ArchivedTranslatedStringContract;
 	webLinks?: ArchivedWebLinkContract[];
 }

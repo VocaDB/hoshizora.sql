@@ -30,6 +30,14 @@ import { ReleaseEventSeries } from '@/entities/ReleaseEventSeries';
 import { Song } from '@/entities/Song';
 import { SongInAlbum } from '@/entities/SongInAlbum';
 import { Tag } from '@/entities/Tag';
+import {
+	AlbumTagUsage,
+	ArtistTagUsage,
+	ReleaseEventSeriesTagUsage,
+	ReleaseEventTagUsage,
+	SongTagUsage,
+	TagUsage,
+} from '@/entities/TagUsage';
 import { TranslatedString } from '@/entities/TranslatedString';
 import {
 	AlbumWebLink,
@@ -56,6 +64,7 @@ import {
 	LyricsForSongContract,
 } from '@/models/ArchivedSongContract';
 import { ArchivedTagContract } from '@/models/ArchivedTagContract';
+import { ArchivedTagUsageContract } from '@/models/ArchivedTagUsageContract';
 import { ArchivedTranslatedStringContract } from '@/models/ArchivedTranslatedStringContract';
 import { ArchivedWebLinkContract } from '@/models/ArchivedWebLinkContract';
 import { LocalizedStringContract } from '@/models/LocalizedStringContract';
@@ -167,6 +176,16 @@ const createPV = <TPV extends PV>(
 	return pv;
 };
 
+const createTagUsage = <TTagUsage extends TagUsage>(
+	ctor: new () => TTagUsage,
+	archived: ArchivedTagUsageContract,
+): TTagUsage => {
+	const tagUsage = new ctor();
+	tagUsage.count = archived.count;
+	tagUsage.tag = Reference.createFromPK(Tag, archived.tag.id);
+	return tagUsage;
+};
+
 const createWebLink = <TWebLink extends WebLink>(
 	ctor: new () => TWebLink,
 	archived: ArchivedWebLinkContract,
@@ -246,6 +265,12 @@ const importArtists = (em: EntityManager): Promise<void> => {
 			return createPicture(ArtistPictureFile, archived);
 		};
 
+		const createArtistTagUsage = (
+			archived: ArchivedTagUsageContract,
+		): ArtistTagUsage => {
+			return createTagUsage(ArtistTagUsage, archived);
+		};
+
 		const createArtistWebLink = (
 			archived: ArchivedWebLinkContract,
 		): ArtistWebLink => {
@@ -271,6 +296,7 @@ const importArtists = (em: EntityManager): Promise<void> => {
 		artist.releaseDate = archived.releaseDate
 			? new Date(archived.releaseDate)
 			: undefined;
+		artist.tagUsages.add(archived.tags.map(createArtistTagUsage));
 		artist.translatedName = createTranslatedString(archived.translatedName);
 		artist.webLinks.add(archived.webLinks?.map(createArtistWebLink) ?? []);
 
@@ -290,6 +316,12 @@ const importReleaseEventSeries = (em: EntityManager): Promise<void> => {
 			return createName(ReleaseEventSeriesName, archived);
 		};
 
+		const createReleaseEventSeriesTagUsage = (
+			archived: ArchivedTagUsageContract,
+		): ReleaseEventSeriesTagUsage => {
+			return createTagUsage(ReleaseEventSeriesTagUsage, archived);
+		};
+
 		const createReleaseEventSeriesWebLink = (
 			archived: ArchivedWebLinkContract,
 		): ReleaseEventSeriesWebLink => {
@@ -303,6 +335,9 @@ const importReleaseEventSeries = (em: EntityManager): Promise<void> => {
 		releaseEventSeries.mainPictureMime = archived.mainPictureMime;
 		releaseEventSeries.names.add(
 			archived.names?.map(createReleaseEventSeriesName) ?? [],
+		);
+		releaseEventSeries.tagUsages.add(
+			archived.tags.map(createReleaseEventSeriesTagUsage),
 		);
 		releaseEventSeries.translatedName = createTranslatedString(
 			archived.translatedName,
@@ -345,6 +380,12 @@ const importReleaseEvents = (em: EntityManager): Promise<void> => {
 			return createPV(PVForReleaseEvent, archived);
 		};
 
+		const createReleaseEventTagUsage = (
+			archived: ArchivedTagUsageContract,
+		): ReleaseEventTagUsage => {
+			return createTagUsage(ReleaseEventTagUsage, archived);
+		};
+
 		const createReleaseEventWebLink = (
 			archived: ArchivedWebLinkContract,
 		): ReleaseEventWebLink => {
@@ -368,6 +409,9 @@ const importReleaseEvents = (em: EntityManager): Promise<void> => {
 			? Reference.createFromPK(ReleaseEventSeries, archived.series.id)
 			: undefined;
 		releaseEvent.seriesNumber = archived.seriesNumber;
+		releaseEvent.tagUsages.add(
+			archived.tags.map(createReleaseEventTagUsage),
+		);
 		releaseEvent.translatedName = createTranslatedString(
 			archived.translatedName,
 		);
@@ -419,6 +463,12 @@ const importSongs = (em: EntityManager): Promise<void> => {
 			return createPV(PVForSong, archived);
 		};
 
+		const createSongTagUsage = (
+			archived: ArchivedTagUsageContract,
+		): SongTagUsage => {
+			return createTagUsage(SongTagUsage, archived);
+		};
+
 		const createSongWebLink = (
 			archived: ArchivedWebLinkContract,
 		): SongWebLink => {
@@ -451,6 +501,7 @@ const importSongs = (em: EntityManager): Promise<void> => {
 			? Reference.createFromPK(ReleaseEvent, archived.releaseEvent.id)
 			: undefined;
 		song.songType = archived.songType;
+		song.tagUsages.add(archived.tags.map(createSongTagUsage));
 		song.translatedName = createTranslatedString(archived.translatedName);
 		song.webLinks.add(archived.webLinks?.map(createSongWebLink) ?? []);
 
@@ -508,6 +559,12 @@ const importAlbums = (em: EntityManager): Promise<void> => {
 
 		const createAlbumPV = (archived: ArchivedPVContract): PVForAlbum => {
 			return createPV(PVForAlbum, archived);
+		};
+
+		const createAlbumTagUsage = (
+			archived: ArchivedTagUsageContract,
+		): AlbumTagUsage => {
+			return createTagUsage(AlbumTagUsage, archived);
 		};
 
 		const createAlbumSongLink = (
@@ -570,6 +627,7 @@ const importAlbums = (em: EntityManager): Promise<void> => {
 		album.pictures.add(archived.pictures?.map(createAlbumPicture) ?? []);
 		album.pvs.add(archived.pvs?.map(createAlbumPV) ?? []);
 		album.songLinks.add(archived.songs?.map(createAlbumSongLink) ?? []);
+		album.tagUsages.add(archived.tags.map(createAlbumTagUsage));
 		album.translatedName = createTranslatedString(archived.translatedName);
 		album.webLinks.add(archived.webLinks?.map(createAlbumWebLink) ?? []);
 

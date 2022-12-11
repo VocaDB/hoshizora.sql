@@ -7,6 +7,7 @@ import { AlbumName } from '@/entities/Name';
 import { PVForAlbum } from '@/entities/PV';
 import { AlbumPictureFile } from '@/entities/PictureFile';
 import { SongInAlbum } from '@/entities/SongInAlbum';
+import { AlbumTagUsage } from '@/entities/TagUsage';
 import { TranslatedString } from '@/entities/TranslatedString';
 import { AlbumWebLink } from '@/entities/WebLink';
 import {
@@ -71,6 +72,9 @@ export class Album {
 
 	@OneToMany(() => SongInAlbum, (songLink) => songLink.album)
 	songLinks = new Collection<SongInAlbum>(this);
+
+	@OneToMany(() => AlbumTagUsage, (tagUsage) => tagUsage.album)
+	tagUsages = new Collection<AlbumTagUsage>(this);
 
 	@Embedded(() => TranslatedString, { prefix: false })
 	translatedName!: TranslatedString;

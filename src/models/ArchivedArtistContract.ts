@@ -1,5 +1,6 @@
 import { ArtistType } from '@/entities/Artist';
 import { ArchivedEntryPictureFileContract } from '@/models/ArchivedEntryPictureFileContract';
+import { ArchivedTagUsageContract } from '@/models/ArchivedTagUsageContract';
 import { ArchivedTranslatedStringContract } from '@/models/ArchivedTranslatedStringContract';
 import { ArchivedWebLinkContract } from '@/models/ArchivedWebLinkContract';
 import { LocalizedStringContract } from '@/models/LocalizedStringContract';
@@ -20,6 +21,7 @@ export interface ArchivedArtistContract {
 	names?: LocalizedStringContract[];
 	pictures?: ArchivedEntryPictureFileContract[];
 	releaseDate?: string;
+	tags: ArchivedTagUsageContract[];
 	translatedName: ArchivedTranslatedStringContract;
 	webLinks?: ArchivedWebLinkContract[];
 }

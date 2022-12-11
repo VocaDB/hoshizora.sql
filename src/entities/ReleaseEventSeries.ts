@@ -1,5 +1,6 @@
 import { ReleaseEventSeriesName } from '@/entities/Name';
 import { ReleaseEventCategory } from '@/entities/ReleaseEvent';
+import { ReleaseEventSeriesTagUsage } from '@/entities/TagUsage';
 import { TranslatedString } from '@/entities/TranslatedString';
 import { ReleaseEventSeriesWebLink } from '@/entities/WebLink';
 import {
@@ -28,6 +29,12 @@ export class ReleaseEventSeries {
 
 	@OneToMany(() => ReleaseEventSeriesName, (name) => name.releaseEventSeries)
 	names = new Collection<ReleaseEventSeriesName>(this);
+
+	@OneToMany(
+		() => ReleaseEventSeriesTagUsage,
+		(tagUsage) => tagUsage.releaseEventSeries,
+	)
+	tagUsages = new Collection<ReleaseEventSeriesTagUsage>(this);
 
 	@Embedded(() => TranslatedString, { prefix: false })
 	translatedName!: TranslatedString;

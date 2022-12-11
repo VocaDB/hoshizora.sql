@@ -4,6 +4,7 @@ import { LyricsForSong } from '@/entities/LyricsForSong';
 import { SongName } from '@/entities/Name';
 import { PVForSong } from '@/entities/PV';
 import { ReleaseEvent } from '@/entities/ReleaseEvent';
+import { SongTagUsage } from '@/entities/TagUsage';
 import { TranslatedString } from '@/entities/TranslatedString';
 import { SongWebLink } from '@/entities/WebLink';
 import {
@@ -79,6 +80,9 @@ export class Song {
 
 	@Enum(() => SongType)
 	songType!: SongType;
+
+	@OneToMany(() => SongTagUsage, (tagUsage) => tagUsage.song)
+	tagUsages = new Collection<SongTagUsage>(this);
 
 	@Embedded(() => TranslatedString, { prefix: false })
 	translatedName!: TranslatedString;

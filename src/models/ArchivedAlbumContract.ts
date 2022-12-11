@@ -2,6 +2,7 @@ import { DiscType } from '@/entities/Album';
 import { DiscMediaType } from '@/entities/AlbumDiscProperties';
 import { ArchivedEntryPictureFileContract } from '@/models/ArchivedEntryPictureFileContract';
 import { ArchivedPVContract } from '@/models/ArchivedPVContract';
+import { ArchivedTagUsageContract } from '@/models/ArchivedTagUsageContract';
 import { ArchivedTranslatedStringContract } from '@/models/ArchivedTranslatedStringContract';
 import { ArchivedWebLinkContract } from '@/models/ArchivedWebLinkContract';
 import { LocalizedStringContract } from '@/models/LocalizedStringContract';
@@ -43,6 +44,7 @@ export interface ArchivedAlbumContract {
 	pictures?: ArchivedEntryPictureFileContract[];
 	pvs?: ArchivedPVContract[];
 	songs?: SongInAlbumRefContract[];
+	tags: ArchivedTagUsageContract[];
 	translatedName: ArchivedTranslatedStringContract;
 	webLinks?: ArchivedWebLinkContract[];
 }
