@@ -179,393 +179,403 @@ const createWebLink = <TWebLink extends WebLink>(
 	return webLink;
 };
 
-const createTag = (archived: ArchivedTagContract): Tag => {
-	const createTagName = (archived: LocalizedStringContract): TagName => {
-		return createName(TagName, archived);
-	};
-
-	const createRelatedTag = (archived: ObjectRefContract): RelatedTag => {
-		const relatedTag = new RelatedTag();
-		relatedTag.linkedTag = Reference.createFromPK(Tag, archived.id);
-		return relatedTag;
-	};
-
-	const createTagWebLink = (
-		archived: ArchivedWebLinkContract,
-	): TagWebLink => {
-		return createWebLink(TagWebLink, archived);
-	};
-
-	const tag = new Tag();
-
-	tag.id = archived.id;
-	tag.categoryName = archived.categoryName;
-
-	tag.description = new EnglishTranslatedString();
-	tag.description.original = archived.description ?? '';
-	tag.description.english = archived.descriptionEng ?? '';
-
-	tag.hideFromSuggestions = archived.hideFromSuggestions;
-	tag.names.add(archived.names?.map(createTagName) ?? []);
-	tag.parent = archived.parent
-		? Reference.createFromPK(Tag, archived.parent.id)
-		: undefined;
-	tag.relatedTags.add(archived.relatedTags?.map(createRelatedTag) ?? []);
-	tag.translatedName = createTranslatedString(archived.translatedName);
-	tag.targets = archived.targets;
-	tag.thumbMime = archived.thumbMime;
-	tag.webLinks.add(archived.webLinks?.map(createTagWebLink) ?? []);
-
-	return tag;
-};
-
 const importTags = (em: EntityManager): Promise<void> => {
+	const createTag = (archived: ArchivedTagContract): Tag => {
+		const createTagName = (archived: LocalizedStringContract): TagName => {
+			return createName(TagName, archived);
+		};
+
+		const createRelatedTag = (archived: ObjectRefContract): RelatedTag => {
+			const relatedTag = new RelatedTag();
+			relatedTag.linkedTag = Reference.createFromPK(Tag, archived.id);
+			return relatedTag;
+		};
+
+		const createTagWebLink = (
+			archived: ArchivedWebLinkContract,
+		): TagWebLink => {
+			return createWebLink(TagWebLink, archived);
+		};
+
+		const tag = new Tag();
+
+		tag.id = archived.id;
+		tag.categoryName = archived.categoryName;
+
+		tag.description = new EnglishTranslatedString();
+		tag.description.original = archived.description ?? '';
+		tag.description.english = archived.descriptionEng ?? '';
+
+		tag.hideFromSuggestions = archived.hideFromSuggestions;
+		tag.names.add(archived.names?.map(createTagName) ?? []);
+		tag.parent = archived.parent
+			? Reference.createFromPK(Tag, archived.parent.id)
+			: undefined;
+		tag.relatedTags.add(archived.relatedTags?.map(createRelatedTag) ?? []);
+		tag.translatedName = createTranslatedString(archived.translatedName);
+		tag.targets = archived.targets;
+		tag.thumbMime = archived.thumbMime;
+		tag.webLinks.add(archived.webLinks?.map(createTagWebLink) ?? []);
+
+		return tag;
+	};
+
 	return importEntries(em, 'Tags', createTag);
 };
 
-const createArtist = (archived: ArchivedArtistContract): Artist => {
-	const createArtistLink = (
-		archived: ArchivedArtistForArtistContract,
-	): ArtistForArtist => {
-		const artistLink = new ArtistForArtist();
-		artistLink.group = Reference.createFromPK(Artist, archived.id);
-		artistLink.linkType = archived.linkType;
-		return artistLink;
-	};
-
-	const createArtistName = (
-		archived: LocalizedStringContract,
-	): ArtistName => {
-		return createName(ArtistName, archived);
-	};
-
-	const createArtistPicture = (
-		archived: ArchivedEntryPictureFileContract,
-	): ArtistPictureFile => {
-		return createPicture(ArtistPictureFile, archived);
-	};
-
-	const createArtistWebLink = (
-		archived: ArchivedWebLinkContract,
-	): ArtistWebLink => {
-		return createWebLink(ArtistWebLink, archived);
-	};
-
-	const artist = new Artist();
-
-	artist.id = archived.id;
-	artist.artistType = archived.artistType;
-	artist.baseVoicebank = archived.baseVoicebank
-		? Reference.createFromPK(Artist, archived.baseVoicebank.id)
-		: undefined;
-
-	artist.description = new EnglishTranslatedString();
-	artist.description.original = archived.description ?? '';
-	artist.description.english = archived.descriptionEng ?? '';
-
-	artist.groups.add(archived.groups?.map(createArtistLink) ?? []);
-	artist.mainPictureMime = archived.mainPictureMime;
-	artist.names.add(archived.names?.map(createArtistName) ?? []);
-	artist.pictures.add(archived.pictures?.map(createArtistPicture) ?? []);
-	artist.releaseDate = archived.releaseDate
-		? new Date(archived.releaseDate)
-		: undefined;
-	artist.translatedName = createTranslatedString(archived.translatedName);
-	artist.webLinks.add(archived.webLinks?.map(createArtistWebLink) ?? []);
-
-	return artist;
-};
-
 const importArtists = (em: EntityManager): Promise<void> => {
+	const createArtist = (archived: ArchivedArtistContract): Artist => {
+		const createArtistLink = (
+			archived: ArchivedArtistForArtistContract,
+		): ArtistForArtist => {
+			const artistLink = new ArtistForArtist();
+			artistLink.group = Reference.createFromPK(Artist, archived.id);
+			artistLink.linkType = archived.linkType;
+			return artistLink;
+		};
+
+		const createArtistName = (
+			archived: LocalizedStringContract,
+		): ArtistName => {
+			return createName(ArtistName, archived);
+		};
+
+		const createArtistPicture = (
+			archived: ArchivedEntryPictureFileContract,
+		): ArtistPictureFile => {
+			return createPicture(ArtistPictureFile, archived);
+		};
+
+		const createArtistWebLink = (
+			archived: ArchivedWebLinkContract,
+		): ArtistWebLink => {
+			return createWebLink(ArtistWebLink, archived);
+		};
+
+		const artist = new Artist();
+
+		artist.id = archived.id;
+		artist.artistType = archived.artistType;
+		artist.baseVoicebank = archived.baseVoicebank
+			? Reference.createFromPK(Artist, archived.baseVoicebank.id)
+			: undefined;
+
+		artist.description = new EnglishTranslatedString();
+		artist.description.original = archived.description ?? '';
+		artist.description.english = archived.descriptionEng ?? '';
+
+		artist.groups.add(archived.groups?.map(createArtistLink) ?? []);
+		artist.mainPictureMime = archived.mainPictureMime;
+		artist.names.add(archived.names?.map(createArtistName) ?? []);
+		artist.pictures.add(archived.pictures?.map(createArtistPicture) ?? []);
+		artist.releaseDate = archived.releaseDate
+			? new Date(archived.releaseDate)
+			: undefined;
+		artist.translatedName = createTranslatedString(archived.translatedName);
+		artist.webLinks.add(archived.webLinks?.map(createArtistWebLink) ?? []);
+
+		return artist;
+	};
+
 	return importEntries(em, 'Artists', createArtist);
 };
 
-const createReleaseEventSeries = (
-	archived: ArchivedReleaseEventSeriesContract,
-): ReleaseEventSeries => {
-	const createReleaseEventSeriesName = (
-		archived: LocalizedStringContract,
-	): ReleaseEventSeriesName => {
-		return createName(ReleaseEventSeriesName, archived);
-	};
-
-	const createReleaseEventSeriesWebLink = (
-		archived: ArchivedWebLinkContract,
-	): ReleaseEventSeriesWebLink => {
-		return createWebLink(ReleaseEventSeriesWebLink, archived);
-	};
-
-	const releaseEventSeries = new ReleaseEventSeries();
-	releaseEventSeries.id = archived.id;
-	releaseEventSeries.category = archived.category;
-	releaseEventSeries.description = archived.description;
-	releaseEventSeries.mainPictureMime = archived.mainPictureMime;
-	releaseEventSeries.names.add(
-		archived.names?.map(createReleaseEventSeriesName) ?? [],
-	);
-	releaseEventSeries.translatedName = createTranslatedString(
-		archived.translatedName,
-	);
-	releaseEventSeries.webLinks.add(
-		archived.webLinks?.map(createReleaseEventSeriesWebLink) ?? [],
-	);
-	return releaseEventSeries;
-};
-
 const importReleaseEventSeries = (em: EntityManager): Promise<void> => {
+	const createReleaseEventSeries = (
+		archived: ArchivedReleaseEventSeriesContract,
+	): ReleaseEventSeries => {
+		const createReleaseEventSeriesName = (
+			archived: LocalizedStringContract,
+		): ReleaseEventSeriesName => {
+			return createName(ReleaseEventSeriesName, archived);
+		};
+
+		const createReleaseEventSeriesWebLink = (
+			archived: ArchivedWebLinkContract,
+		): ReleaseEventSeriesWebLink => {
+			return createWebLink(ReleaseEventSeriesWebLink, archived);
+		};
+
+		const releaseEventSeries = new ReleaseEventSeries();
+		releaseEventSeries.id = archived.id;
+		releaseEventSeries.category = archived.category;
+		releaseEventSeries.description = archived.description;
+		releaseEventSeries.mainPictureMime = archived.mainPictureMime;
+		releaseEventSeries.names.add(
+			archived.names?.map(createReleaseEventSeriesName) ?? [],
+		);
+		releaseEventSeries.translatedName = createTranslatedString(
+			archived.translatedName,
+		);
+		releaseEventSeries.webLinks.add(
+			archived.webLinks?.map(createReleaseEventSeriesWebLink) ?? [],
+		);
+		return releaseEventSeries;
+	};
+
 	return importEntries(em, 'EventSeries', createReleaseEventSeries);
 };
 
-const createReleaseEvent = (
-	archived: ArchivedReleaseEventContract,
-): ReleaseEvent => {
-	const createReleaseEventArtistLink = (
-		archived: ArchivedArtistForReleaseEventContract,
-	): ArtistForReleaseEvent => {
-		const artistLink = new ArtistForReleaseEvent();
-		if (archived.id) {
-			artistLink.artist = Reference.createFromPK(Artist, archived.id);
-		} else {
-			artistLink.name = archived.nameHint;
-		}
-		artistLink.roles = archived.roles;
-		return artistLink;
-	};
-
-	const createReleaseEventName = (
-		archived: LocalizedStringContract,
-	): ReleaseEventName => {
-		return createName(ReleaseEventName, archived);
-	};
-
-	const createReleaseEventPV = (
-		archived: ArchivedPVContract,
-	): PVForReleaseEvent => {
-		return createPV(PVForReleaseEvent, archived);
-	};
-
-	const createReleaseEventWebLink = (
-		archived: ArchivedWebLinkContract,
-	): ReleaseEventWebLink => {
-		return createWebLink(ReleaseEventWebLink, archived);
-	};
-
-	const releaseEvent = new ReleaseEvent();
-	releaseEvent.id = archived.id;
-	releaseEvent.artistLinks.add(
-		archived.artists?.map(createReleaseEventArtistLink) ?? [],
-	);
-	releaseEvent.category = archived.category;
-	releaseEvent.date = archived.date ? new Date(archived.date) : undefined;
-	releaseEvent.description = archived.description;
-	releaseEvent.mainPictureMime = archived.mainPictureMime;
-	releaseEvent.names.add(archived.names?.map(createReleaseEventName) ?? []);
-	releaseEvent.pvs.add(archived.pvs?.map(createReleaseEventPV) ?? []);
-	releaseEvent.series = archived.series
-		? Reference.createFromPK(ReleaseEventSeries, archived.series.id)
-		: undefined;
-	releaseEvent.seriesNumber = archived.seriesNumber;
-	releaseEvent.translatedName = createTranslatedString(
-		archived.translatedName,
-	);
-	releaseEvent.venueName = archived.venueName;
-	releaseEvent.webLinks.add(
-		archived.webLinks?.map(createReleaseEventWebLink) ?? [],
-	);
-	return releaseEvent;
-};
-
 const importReleaseEvents = (em: EntityManager): Promise<void> => {
+	const createReleaseEvent = (
+		archived: ArchivedReleaseEventContract,
+	): ReleaseEvent => {
+		const createReleaseEventArtistLink = (
+			archived: ArchivedArtistForReleaseEventContract,
+		): ArtistForReleaseEvent => {
+			const artistLink = new ArtistForReleaseEvent();
+			if (archived.id) {
+				artistLink.artist = Reference.createFromPK(Artist, archived.id);
+			} else {
+				artistLink.name = archived.nameHint;
+			}
+			artistLink.roles = archived.roles;
+			return artistLink;
+		};
+
+		const createReleaseEventName = (
+			archived: LocalizedStringContract,
+		): ReleaseEventName => {
+			return createName(ReleaseEventName, archived);
+		};
+
+		const createReleaseEventPV = (
+			archived: ArchivedPVContract,
+		): PVForReleaseEvent => {
+			return createPV(PVForReleaseEvent, archived);
+		};
+
+		const createReleaseEventWebLink = (
+			archived: ArchivedWebLinkContract,
+		): ReleaseEventWebLink => {
+			return createWebLink(ReleaseEventWebLink, archived);
+		};
+
+		const releaseEvent = new ReleaseEvent();
+		releaseEvent.id = archived.id;
+		releaseEvent.artistLinks.add(
+			archived.artists?.map(createReleaseEventArtistLink) ?? [],
+		);
+		releaseEvent.category = archived.category;
+		releaseEvent.date = archived.date ? new Date(archived.date) : undefined;
+		releaseEvent.description = archived.description;
+		releaseEvent.mainPictureMime = archived.mainPictureMime;
+		releaseEvent.names.add(
+			archived.names?.map(createReleaseEventName) ?? [],
+		);
+		releaseEvent.pvs.add(archived.pvs?.map(createReleaseEventPV) ?? []);
+		releaseEvent.series = archived.series
+			? Reference.createFromPK(ReleaseEventSeries, archived.series.id)
+			: undefined;
+		releaseEvent.seriesNumber = archived.seriesNumber;
+		releaseEvent.translatedName = createTranslatedString(
+			archived.translatedName,
+		);
+		releaseEvent.venueName = archived.venueName;
+		releaseEvent.webLinks.add(
+			archived.webLinks?.map(createReleaseEventWebLink) ?? [],
+		);
+		return releaseEvent;
+	};
+
 	return importEntries(em, 'Events', createReleaseEvent);
 };
 
-const createSong = (archived: ArchivedSongContract): Song => {
-	const createSongArtistLink = (
-		archived: ArchivedArtistForSongContract,
-	): ArtistForSong => {
-		const artistLink = new ArtistForSong();
-		if (archived.id) {
-			artistLink.artist = Reference.createFromPK(Artist, archived.id);
-		} else {
-			artistLink.name = archived.nameHint;
-		}
-		artistLink.isSupport = archived.isSupport;
-		artistLink.roles = archived.roles;
-		return artistLink;
-	};
-
-	const createLyrics = (archived: LyricsForSongContract): LyricsForSong => {
-		const lyrics = new LyricsForSong();
-		lyrics.cultureCode = archived.cultureCode;
-		lyrics.source = archived.source;
-		lyrics.text = archived.value ?? '';
-		lyrics.translationType = archived.translationType;
-		lyrics.url = archived.url;
-		return lyrics;
-	};
-
-	const createSongName = (archived: LocalizedStringContract): SongName => {
-		return createName(SongName, archived);
-	};
-
-	const createSongPV = (archived: ArchivedPVContract): PVForSong => {
-		return createPV(PVForSong, archived);
-	};
-
-	const createSongWebLink = (
-		archived: ArchivedWebLinkContract,
-	): SongWebLink => {
-		return createWebLink(SongWebLink, archived);
-	};
-
-	const song = new Song();
-
-	song.id = archived.id;
-	song.artistLinks.add(archived.artists?.map(createSongArtistLink) ?? []);
-	song.lengthSeconds = archived.lengthSeconds;
-	song.lyrics.add(archived.lyrics?.map(createLyrics) ?? []);
-	song.maxMilliBpm = archived.maxMilliBpm;
-	song.minMilliBpm = archived.minMilliBpm;
-	song.names.add(archived.names?.map(createSongName) ?? []);
-	song.nicoId = archived.nicoId;
-
-	song.notes = new EnglishTranslatedString();
-	song.notes.original = archived.notes;
-	song.notes.english = archived.notesEng;
-
-	song.originalVersion = archived.originalVersion
-		? Reference.createFromPK(Song, archived.originalVersion.id)
-		: undefined;
-	song.publishDate = archived.publishDate
-		? new Date(archived.publishDate)
-		: undefined;
-	song.pvs.add(archived.pvs?.map(createSongPV) ?? []);
-	song.releaseEvent = archived.releaseEvent
-		? Reference.createFromPK(ReleaseEvent, archived.releaseEvent.id)
-		: undefined;
-	song.songType = archived.songType;
-	song.translatedName = createTranslatedString(archived.translatedName);
-	song.webLinks.add(archived.webLinks?.map(createSongWebLink) ?? []);
-
-	return song;
-};
-
 const importSongs = (em: EntityManager): Promise<void> => {
+	const createSong = (archived: ArchivedSongContract): Song => {
+		const createSongArtistLink = (
+			archived: ArchivedArtistForSongContract,
+		): ArtistForSong => {
+			const artistLink = new ArtistForSong();
+			if (archived.id) {
+				artistLink.artist = Reference.createFromPK(Artist, archived.id);
+			} else {
+				artistLink.name = archived.nameHint;
+			}
+			artistLink.isSupport = archived.isSupport;
+			artistLink.roles = archived.roles;
+			return artistLink;
+		};
+
+		const createLyrics = (
+			archived: LyricsForSongContract,
+		): LyricsForSong => {
+			const lyrics = new LyricsForSong();
+			lyrics.cultureCode = archived.cultureCode;
+			lyrics.source = archived.source;
+			lyrics.text = archived.value ?? '';
+			lyrics.translationType = archived.translationType;
+			lyrics.url = archived.url;
+			return lyrics;
+		};
+
+		const createSongName = (
+			archived: LocalizedStringContract,
+		): SongName => {
+			return createName(SongName, archived);
+		};
+
+		const createSongPV = (archived: ArchivedPVContract): PVForSong => {
+			return createPV(PVForSong, archived);
+		};
+
+		const createSongWebLink = (
+			archived: ArchivedWebLinkContract,
+		): SongWebLink => {
+			return createWebLink(SongWebLink, archived);
+		};
+
+		const song = new Song();
+
+		song.id = archived.id;
+		song.artistLinks.add(archived.artists?.map(createSongArtistLink) ?? []);
+		song.lengthSeconds = archived.lengthSeconds;
+		song.lyrics.add(archived.lyrics?.map(createLyrics) ?? []);
+		song.maxMilliBpm = archived.maxMilliBpm;
+		song.minMilliBpm = archived.minMilliBpm;
+		song.names.add(archived.names?.map(createSongName) ?? []);
+		song.nicoId = archived.nicoId;
+
+		song.notes = new EnglishTranslatedString();
+		song.notes.original = archived.notes;
+		song.notes.english = archived.notesEng;
+
+		song.originalVersion = archived.originalVersion
+			? Reference.createFromPK(Song, archived.originalVersion.id)
+			: undefined;
+		song.publishDate = archived.publishDate
+			? new Date(archived.publishDate)
+			: undefined;
+		song.pvs.add(archived.pvs?.map(createSongPV) ?? []);
+		song.releaseEvent = archived.releaseEvent
+			? Reference.createFromPK(ReleaseEvent, archived.releaseEvent.id)
+			: undefined;
+		song.songType = archived.songType;
+		song.translatedName = createTranslatedString(archived.translatedName);
+		song.webLinks.add(archived.webLinks?.map(createSongWebLink) ?? []);
+
+		return song;
+	};
+
 	return importEntries(em, 'Songs', createSong);
 };
 
-const createAlbum = (archived: ArchivedAlbumContract): Album => {
-	const createAlbumArtistLink = (
-		archived: ArchivedArtistForAlbumContract,
-	): ArtistForAlbum => {
-		const artistLink = new ArtistForAlbum();
-		if (archived.id) {
-			artistLink.artist = Reference.createFromPK(Artist, archived.id);
-		} else {
-			artistLink.name = archived.nameHint;
-		}
-		artistLink.isSupport = archived.isSupport;
-		artistLink.roles = archived.roles;
-		return artistLink;
-	};
-
-	const createAlbumDisc = (
-		archived: AlbumDiscPropertiesContract,
-	): AlbumDiscProperties => {
-		const disc = new AlbumDiscProperties();
-		disc.discNumber = archived.discNumber;
-		disc.mediaType = archived.mediaType;
-		disc.name = archived.name;
-		return disc;
-	};
-
-	const createAlbumIdentifier = (
-		archived: AlbumIdentifierContract,
-	): AlbumIdentifier => {
-		const identifier = new AlbumIdentifier();
-		identifier.value = archived.value;
-		return identifier;
-	};
-
-	const createAlbumName = (archived: LocalizedStringContract): AlbumName => {
-		return createName(AlbumName, archived);
-	};
-
-	const createAlbumPicture = (
-		archived: ArchivedEntryPictureFileContract,
-	): AlbumPictureFile => {
-		return createPicture(AlbumPictureFile, archived);
-	};
-
-	const createAlbumPV = (archived: ArchivedPVContract): PVForAlbum => {
-		return createPV(PVForAlbum, archived);
-	};
-
-	const createAlbumSongLink = (
-		archived: SongInAlbumRefContract,
-	): SongInAlbum => {
-		const songLink = new SongInAlbum();
-		if (archived.id) {
-			songLink.song = Reference.createFromPK(Song, archived.id);
-		} else {
-			songLink.name = archived.nameHint;
-		}
-		songLink.discNumber = archived.discNumber;
-		songLink.trackNumber = archived.trackNumber;
-		return songLink;
-	};
-
-	const createAlbumWebLink = (
-		archived: ArchivedWebLinkContract,
-	): AlbumWebLink => {
-		return createWebLink(AlbumWebLink, archived);
-	};
-
-	const album = new Album();
-
-	album.id = archived.id;
-
-	album.artistLinks.add(archived.artists?.map(createAlbumArtistLink) ?? []);
-	album.description = new EnglishTranslatedString();
-	album.description.original = archived.description ?? '';
-	album.description.english = archived.descriptionEng ?? '';
-
-	album.discs.add(archived.discs?.map(createAlbumDisc) ?? []);
-	album.discType = archived.discType;
-	album.identifiers.add(
-		archived.identifiers?.map(createAlbumIdentifier) ?? [],
-	);
-	album.mainPictureMime = archived.mainPictureMime;
-	album.names.add(archived.names?.map(createAlbumName) ?? []);
-
-	album.originalRelease = new AlbumRelease();
-	const { originalRelease } = archived;
-	if (originalRelease) {
-		album.originalRelease.catNum = originalRelease.catNum;
-		const { releaseDate } = originalRelease;
-		if (releaseDate) {
-			album.originalRelease.day = releaseDate.day;
-			album.originalRelease.month = releaseDate.month;
-			album.originalRelease.year = releaseDate.year;
-		}
-		album.originalRelease.releaseEvent = originalRelease.releaseEvent
-			? Reference.createFromPK(
-					ReleaseEvent,
-					originalRelease.releaseEvent.id,
-			  )
-			: undefined;
-	}
-
-	album.pictures.add(archived.pictures?.map(createAlbumPicture) ?? []);
-	album.pvs.add(archived.pvs?.map(createAlbumPV) ?? []);
-	album.songLinks.add(archived.songs?.map(createAlbumSongLink) ?? []);
-	album.translatedName = createTranslatedString(archived.translatedName);
-	album.webLinks.add(archived.webLinks?.map(createAlbumWebLink) ?? []);
-
-	return album;
-};
-
 const importAlbums = (em: EntityManager): Promise<void> => {
+	const createAlbum = (archived: ArchivedAlbumContract): Album => {
+		const createAlbumArtistLink = (
+			archived: ArchivedArtistForAlbumContract,
+		): ArtistForAlbum => {
+			const artistLink = new ArtistForAlbum();
+			if (archived.id) {
+				artistLink.artist = Reference.createFromPK(Artist, archived.id);
+			} else {
+				artistLink.name = archived.nameHint;
+			}
+			artistLink.isSupport = archived.isSupport;
+			artistLink.roles = archived.roles;
+			return artistLink;
+		};
+
+		const createAlbumDisc = (
+			archived: AlbumDiscPropertiesContract,
+		): AlbumDiscProperties => {
+			const disc = new AlbumDiscProperties();
+			disc.discNumber = archived.discNumber;
+			disc.mediaType = archived.mediaType;
+			disc.name = archived.name;
+			return disc;
+		};
+
+		const createAlbumIdentifier = (
+			archived: AlbumIdentifierContract,
+		): AlbumIdentifier => {
+			const identifier = new AlbumIdentifier();
+			identifier.value = archived.value;
+			return identifier;
+		};
+
+		const createAlbumName = (
+			archived: LocalizedStringContract,
+		): AlbumName => {
+			return createName(AlbumName, archived);
+		};
+
+		const createAlbumPicture = (
+			archived: ArchivedEntryPictureFileContract,
+		): AlbumPictureFile => {
+			return createPicture(AlbumPictureFile, archived);
+		};
+
+		const createAlbumPV = (archived: ArchivedPVContract): PVForAlbum => {
+			return createPV(PVForAlbum, archived);
+		};
+
+		const createAlbumSongLink = (
+			archived: SongInAlbumRefContract,
+		): SongInAlbum => {
+			const songLink = new SongInAlbum();
+			if (archived.id) {
+				songLink.song = Reference.createFromPK(Song, archived.id);
+			} else {
+				songLink.name = archived.nameHint;
+			}
+			songLink.discNumber = archived.discNumber;
+			songLink.trackNumber = archived.trackNumber;
+			return songLink;
+		};
+
+		const createAlbumWebLink = (
+			archived: ArchivedWebLinkContract,
+		): AlbumWebLink => {
+			return createWebLink(AlbumWebLink, archived);
+		};
+
+		const album = new Album();
+
+		album.id = archived.id;
+
+		album.artistLinks.add(
+			archived.artists?.map(createAlbumArtistLink) ?? [],
+		);
+		album.description = new EnglishTranslatedString();
+		album.description.original = archived.description ?? '';
+		album.description.english = archived.descriptionEng ?? '';
+
+		album.discs.add(archived.discs?.map(createAlbumDisc) ?? []);
+		album.discType = archived.discType;
+		album.identifiers.add(
+			archived.identifiers?.map(createAlbumIdentifier) ?? [],
+		);
+		album.mainPictureMime = archived.mainPictureMime;
+		album.names.add(archived.names?.map(createAlbumName) ?? []);
+
+		album.originalRelease = new AlbumRelease();
+		const { originalRelease } = archived;
+		if (originalRelease) {
+			album.originalRelease.catNum = originalRelease.catNum;
+			const { releaseDate } = originalRelease;
+			if (releaseDate) {
+				album.originalRelease.day = releaseDate.day;
+				album.originalRelease.month = releaseDate.month;
+				album.originalRelease.year = releaseDate.year;
+			}
+			album.originalRelease.releaseEvent = originalRelease.releaseEvent
+				? Reference.createFromPK(
+						ReleaseEvent,
+						originalRelease.releaseEvent.id,
+				  )
+				: undefined;
+		}
+
+		album.pictures.add(archived.pictures?.map(createAlbumPicture) ?? []);
+		album.pvs.add(archived.pvs?.map(createAlbumPV) ?? []);
+		album.songLinks.add(archived.songs?.map(createAlbumSongLink) ?? []);
+		album.translatedName = createTranslatedString(archived.translatedName);
+		album.webLinks.add(archived.webLinks?.map(createAlbumWebLink) ?? []);
+
+		return album;
+	};
+
 	return importEntries(em, 'Albums', createAlbum);
 };
 
