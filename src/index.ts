@@ -68,12 +68,10 @@ import {
 	SongInAlbumRefContract,
 } from '@/models/ObjectRefContract';
 import { EntityManager, MikroORM, Reference } from '@mikro-orm/core';
-import { chunk, orderBy } from 'lodash';
 import { readFile, readdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
 const dumpPath = resolve(__dirname, '..', 'dump');
-const chunkSize = 1000;
 
 type ArchivedEntry =
 	| ArchivedAlbumContract
@@ -83,50 +81,7 @@ type ArchivedEntry =
 	| ArchivedSongContract
 	| ArchivedTagContract;
 
-const getArchivedEntries = async <TArchivedEntry extends ArchivedEntry>(
-	folder: string,
-): Promise<TArchivedEntry[]> => {
-	const path = resolve(dumpPath, folder);
-	const fileNames = orderBy(
-		await readdir(path),
-		(fileName) => fileName.length,
-	);
-
-	const promises = fileNames.map(
-		async (fileName) =>
-			// TODO: Validate JSON.
-			JSON.parse(
-				await readFile(resolve(path, fileName), 'utf8'),
-			) as TArchivedEntry[],
-	);
-
-	return (await Promise.all(promises)).flatMap(
-		(archivedEntries) => archivedEntries,
-	);
-};
-
 type Entry = Album | Artist | ReleaseEvent | ReleaseEventSeries | Song | Tag;
-
-const persistEntries = async <
-	TArchivedEntry extends ArchivedEntry,
-	TEntry extends Entry,
->(
-	em: EntityManager,
-	archivedEntries: TArchivedEntry[],
-	entryFactory: (archivedEntry: TArchivedEntry) => TEntry,
-): Promise<void> => {
-	const chunks = chunk(archivedEntries, chunkSize);
-	for (const chunk of chunks) {
-		await em.transactional(async (em) => {
-			for (const archived of chunk) {
-				const entry = entryFactory(archived);
-				em.persist(entry);
-			}
-		});
-
-		em.clear();
-	}
-};
 
 const importEntries = async <
 	TArchivedEntry extends ArchivedEntry,
@@ -136,12 +91,31 @@ const importEntries = async <
 	folder: 'Albums' | 'Artists' | 'Events' | 'EventSeries' | 'Songs' | 'Tags',
 	entryFactory: (archivedEntry: TArchivedEntry) => TEntry,
 ): Promise<void> => {
-	console.log(`Importing ${folder}...`);
+	const folderPath = resolve(dumpPath, folder);
+	const fileNames = (await readdir(folderPath)).sort(
+		(a, b) => a.length - b.length,
+	);
 
-	const archivedEntries = await getArchivedEntries<TArchivedEntry>(folder);
-	await persistEntries(em, archivedEntries, entryFactory);
+	for (const fileName of fileNames) {
+		const jsonPath = resolve(folderPath, fileName);
+		console.log(`Importing ${jsonPath}...`);
 
-	console.log(`Imported ${folder}.`);
+		// TODO: Validate JSON.
+		const archivedEntries = JSON.parse(
+			await readFile(jsonPath, 'utf8'),
+		) as TArchivedEntry[];
+
+		await em.transactional(async (em) => {
+			for (const archived of archivedEntries) {
+				const entry = entryFactory(archived);
+				em.persist(entry);
+			}
+		});
+
+		em.clear();
+
+		console.log(`Imported ${jsonPath}.`);
+	}
 };
 
 const createTranslatedString = (
