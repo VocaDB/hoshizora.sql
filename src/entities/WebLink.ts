@@ -1,3 +1,6 @@
+import { CamelToSnakeCase } from '@/CamelToSnakeCase';
+import { escape } from 'sqlstring';
+
 export enum WebLinkCategory {
 	Official = 'Official',
 	Commercial = 'Commercial',
@@ -5,11 +8,36 @@ export enum WebLinkCategory {
 	Other = 'Other',
 }
 
-interface WebLink {
+export interface WebLink {
+	id: number | undefined;
 	category: WebLinkCategory;
 	description: string;
 	url: string;
 	disabled: boolean;
+}
+
+export const WebLinkTableColumnNames: readonly CamelToSnakeCase<
+	keyof WebLink
+>[] = ['id', 'category', 'description', 'url', 'disabled'] as const;
+
+function WebLinkToString(webLink: WebLink): string {
+	const value: Record<typeof WebLinkTableColumnNames[number], string> = {
+		id: escape(webLink.id),
+		category: escape(webLink.category),
+		description: escape(webLink.description),
+		url: escape(webLink.url),
+		disabled: escape(webLink.disabled),
+	};
+	return `(${Object.values(value).join(', ')})`;
+}
+
+export function WebLinksToString(
+	tableName: string,
+	webLinks: WebLink[],
+): string {
+	return `insert into ${tableName} (${WebLinkTableColumnNames.join(
+		', ',
+	)}) value\n${webLinks.map(WebLinkToString).join(',\n')};`;
 }
 
 export interface AlbumWebLink extends WebLink {

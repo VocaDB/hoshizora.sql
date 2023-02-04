@@ -3,7 +3,7 @@ import { PVService, PVType } from '@/entities/PV';
 export interface ArchivedPVContract {
 	author: string;
 	disabled: boolean;
-	extendedMetadata?: string;
+	extendedMetadata?: Record<string, unknown>;
 	length: number;
 	name: string;
 	publishDate?: string;
