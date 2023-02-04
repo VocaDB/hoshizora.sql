@@ -1,15 +1,3 @@
-import { Album } from '@/entities/Album';
-import { ReleaseEvent } from '@/entities/ReleaseEvent';
-import { Song } from '@/entities/Song';
-import {
-	Entity,
-	Enum,
-	ManyToOne,
-	PrimaryKey,
-	Property,
-	Ref,
-} from '@mikro-orm/core';
-
 export enum PVType {
 	Original = 'Original',
 	Reprint = 'Reprint',
@@ -29,46 +17,24 @@ export enum PVService {
 	'Bandcamp' = 'Bandcamp',
 }
 
-export abstract class PV {
-	@PrimaryKey()
-	id!: number;
-
-	@Property({ length: 100 })
-	author!: string;
-
-	@Property({ length: 200 })
-	name!: string;
-
-	@Property()
-	pvId!: string;
-
-	@Enum(() => PVType)
-	pvType!: PVType;
-
-	@Enum(() => PVService)
-	service!: PVService;
-
-	@Property({ type: 'json' })
-	extendedMetadata?: string;
-
-	@Property()
-	publishDate?: Date;
+interface PV {
+	author: string;
+	name: string;
+	pvId: string;
+	pvType: PVType;
+	service: PVService;
+	extendedMetadata: string | undefined;
+	publishDate: Date | undefined;
 }
 
-@Entity({ tableName: 'pvs_for_albums' })
-export class PVForAlbum extends PV {
-	@ManyToOne()
-	album!: Ref<Album>;
+export interface PVForAlbum extends PV {
+	albumId: number;
 }
 
-@Entity({ tableName: 'pvs_for_release_events' })
-export class PVForReleaseEvent extends PV {
-	@ManyToOne()
-	releaseEvent!: Ref<ReleaseEvent>;
+export interface PVForReleaseEvent extends PV {
+	releaseEventId: number;
 }
 
-@Entity({ tableName: 'pvs_for_songs' })
-export class PVForSong extends PV {
-	@ManyToOne()
-	song!: Ref<Song>;
+export interface PVForSong extends PV {
+	songId: number;
 }

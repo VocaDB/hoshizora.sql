@@ -1,54 +1,28 @@
-import { Album } from '@/entities/Album';
-import { Artist } from '@/entities/Artist';
-import { ReleaseEvent } from '@/entities/ReleaseEvent';
-import { ReleaseEventSeries } from '@/entities/ReleaseEventSeries';
-import { Song } from '@/entities/Song';
-import { Tag } from '@/entities/Tag';
-import { Entity, ManyToOne, PrimaryKey, Property, Ref } from '@mikro-orm/core';
-
-export abstract class Name {
-	@PrimaryKey()
-	id!: number;
-
-	@Property({ length: 16 })
-	language!: string;
-
-	@Property()
-	value!: string;
+interface Name {
+	language: string;
+	value: string;
 }
 
-@Entity({ tableName: 'album_names' })
-export class AlbumName extends Name {
-	@ManyToOne()
-	album!: Ref<Album>;
+export interface AlbumName extends Name {
+	albumId: number;
 }
 
-@Entity({ tableName: 'artist_names' })
-export class ArtistName extends Name {
-	@ManyToOne()
-	artist!: Ref<Artist>;
+export interface ArtistName extends Name {
+	artistId: number;
 }
 
-@Entity({ tableName: 'release_event_names' })
-export class ReleaseEventName extends Name {
-	@ManyToOne()
-	releaseEvent!: Ref<ReleaseEvent>;
+export interface ReleaseEventSeriesName extends Name {
+	releaseEventSeriesId: number;
 }
 
-@Entity({ tableName: 'release_event_series_names' })
-export class ReleaseEventSeriesName extends Name {
-	@ManyToOne()
-	releaseEventSeries!: Ref<ReleaseEventSeries>;
+export interface ReleaseEventName extends Name {
+	releaseEventId: number;
 }
 
-@Entity({ tableName: 'song_names' })
-export class SongName extends Name {
-	@ManyToOne()
-	song!: Ref<Song>;
+export interface SongName extends Name {
+	songId: number;
 }
 
-@Entity({ tableName: 'tag_names' })
-export class TagName extends Name {
-	@ManyToOne()
-	tag!: Ref<Tag>;
+export interface TagName extends Name {
+	tagId: number;
 }

@@ -1,21 +1,4 @@
-import { ArtistForArtist } from '@/entities/ArtistForArtist';
-import { EnglishTranslatedString } from '@/entities/EnglishTranslatedString';
-import { ArtistName } from '@/entities/Name';
-import { ArtistPictureFile } from '@/entities/PictureFile';
-import { ArtistTagUsage } from '@/entities/TagUsage';
 import { TranslatedString } from '@/entities/TranslatedString';
-import { ArtistWebLink } from '@/entities/WebLink';
-import {
-	Collection,
-	Embedded,
-	Entity,
-	Enum,
-	ManyToOne,
-	OneToMany,
-	PrimaryKey,
-	Property,
-	Ref,
-} from '@mikro-orm/core';
 
 export enum ArtistType {
 	'Unknown' = 'Unknown',
@@ -40,44 +23,12 @@ export enum ArtistType {
 	'CoverArtist' = 'CoverArtist',
 }
 
-@Entity({ tableName: 'artists' })
-export class Artist {
-	@PrimaryKey()
-	id!: number;
-
-	@Enum(() => ArtistType)
-	artistType!: ArtistType;
-
-	@ManyToOne()
-	baseVoicebank?: Ref<Artist>;
-
-	@Embedded()
-	description!: EnglishTranslatedString;
-
-	@OneToMany(() => ArtistForArtist, (group) => group.member)
-	groups = new Collection<ArtistForArtist>(this);
-
-	@Property({ length: 32 })
-	mainPictureMime?: string;
-
-	@OneToMany(() => ArtistForArtist, (member) => member.group)
-	members = new Collection<ArtistForArtist>(this);
-
-	@OneToMany(() => ArtistName, (name) => name.artist)
-	names = new Collection<ArtistName>(this);
-
-	@OneToMany(() => ArtistPictureFile, (picture) => picture.artist)
-	pictures = new Collection<ArtistPictureFile>(this);
-
-	@Property()
-	releaseDate?: Date;
-
-	@OneToMany(() => ArtistTagUsage, (tagUsage) => tagUsage.artist)
-	tagUsages = new Collection<ArtistTagUsage>(this);
-
-	@Embedded(() => TranslatedString, { prefix: false })
-	translatedName!: TranslatedString;
-
-	@OneToMany(() => ArtistWebLink, (webLink) => webLink.artist)
-	webLinks = new Collection<ArtistWebLink>(this);
+export interface Artist extends TranslatedString {
+	id: number;
+	artistType: ArtistType;
+	baseVoicebankId: number | undefined;
+	descriptionOriginal: string;
+	descriptionEnglish: string;
+	mainPictureMime: string | undefined;
+	releaseDate: Date | undefined;
 }

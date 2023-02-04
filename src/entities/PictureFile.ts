@@ -1,29 +1,13 @@
-import { Album } from '@/entities/Album';
-import { Artist } from '@/entities/Artist';
-import { Entity, ManyToOne, PrimaryKey, Property, Ref } from '@mikro-orm/core';
-
-export abstract class PictureFile {
-	@PrimaryKey()
-	id!: number;
-
-	@Property()
-	created!: Date;
-
-	@Property({ length: 32 })
-	mime!: string;
-
-	@Property({ length: 200 })
-	name!: string;
+interface PictureFile {
+	created: Date;
+	mime: string;
+	name: string;
 }
 
-@Entity({ tableName: 'album_picture_files' })
-export class AlbumPictureFile extends PictureFile {
-	@ManyToOne()
-	album!: Ref<Album>;
+export interface AlbumPictureFile extends PictureFile {
+	albumId: number;
 }
 
-@Entity({ tableName: 'artist_picture_files' })
-export class ArtistPictureFile extends PictureFile {
-	@ManyToOne()
-	artist!: Ref<Artist>;
+export interface ArtistPictureFile extends PictureFile {
+	artistId: number;
 }

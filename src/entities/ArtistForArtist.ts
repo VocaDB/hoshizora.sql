@@ -1,6 +1,3 @@
-import { Artist } from '@/entities/Artist';
-import { Entity, Enum, ManyToOne, PrimaryKey, Ref } from '@mikro-orm/core';
-
 export enum ArtistLinkType {
 	'CharacterDesigner' = 'CharacterDesigner',
 	'Group' = 'Group',
@@ -9,17 +6,8 @@ export enum ArtistLinkType {
 	'VoiceProvider' = 'VoiceProvider',
 }
 
-@Entity({ tableName: 'artists_for_artists' })
-export class ArtistForArtist {
-	@PrimaryKey()
-	id!: number;
-
-	@ManyToOne()
-	group!: Ref<Artist>;
-
-	@ManyToOne()
-	member!: Ref<Artist>;
-
-	@Enum(() => ArtistLinkType)
-	linkType!: ArtistLinkType;
+export interface ArtistForArtist {
+	memberId: number;
+	groupId: number;
+	linkType: ArtistLinkType;
 }
