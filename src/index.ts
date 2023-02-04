@@ -153,7 +153,7 @@ async function convertArchivedTags(): Promise<{
 			thumbMime: archived.thumbMime,
 		});
 
-		if (archived.names !== undefined) {
+		if (archived.names) {
 			for (const name of archived.names) {
 				tagNames.push({
 					id: undefined,
@@ -164,7 +164,7 @@ async function convertArchivedTags(): Promise<{
 			}
 		}
 
-		if (archived.webLinks !== undefined) {
+		if (archived.webLinks) {
 			for (const webLink of archived.webLinks) {
 				tagWebLinks.push({
 					id: undefined,
@@ -177,7 +177,7 @@ async function convertArchivedTags(): Promise<{
 			}
 		}
 
-		if (archived.relatedTags !== undefined) {
+		if (archived.relatedTags) {
 			for (const relatedTag of archived.relatedTags) {
 				relatedTags.push({
 					id: undefined,
@@ -216,17 +216,16 @@ async function convertArchivedArtists(): Promise<{
 			descriptionOriginal: archived.description ?? '',
 			descriptionEnglish: archived.descriptionEng ?? '',
 			mainPictureMime: archived.mainPictureMime,
-			releaseDate:
-				archived.releaseDate !== undefined
-					? new Date(archived.releaseDate)
-					: undefined,
+			releaseDate: archived.releaseDate
+				? new Date(archived.releaseDate)
+				: undefined,
 			defaultNameLanguage: archived.translatedName.defaultLanguage,
 			japaneseName: archived.translatedName.japanese,
 			englishName: archived.translatedName.english,
 			romajiName: archived.translatedName.romaji,
 		});
 
-		if (archived.groups !== undefined) {
+		if (archived.groups) {
 			for (const group of archived.groups) {
 				artistGroups.push({
 					id: undefined,
@@ -237,7 +236,7 @@ async function convertArchivedArtists(): Promise<{
 			}
 		}
 
-		if (archived.names !== undefined) {
+		if (archived.names) {
 			for (const name of archived.names) {
 				artistNames.push({
 					id: undefined,
@@ -248,7 +247,7 @@ async function convertArchivedArtists(): Promise<{
 			}
 		}
 
-		if (archived.pictures !== undefined) {
+		if (archived.pictures) {
 			for (const picture of archived.pictures) {
 				artistPictureFiles.push({
 					id: undefined,
@@ -260,7 +259,7 @@ async function convertArchivedArtists(): Promise<{
 			}
 		}
 
-		if (archived.tags !== undefined) {
+		if (archived.tags) {
 			for (const tag of archived.tags) {
 				artistTagUsages.push({
 					id: undefined,
@@ -271,7 +270,7 @@ async function convertArchivedArtists(): Promise<{
 			}
 		}
 
-		if (archived.webLinks !== undefined) {
+		if (archived.webLinks) {
 			for (const webLink of archived.webLinks) {
 				artistWebLinks.push({
 					id: undefined,
@@ -320,7 +319,7 @@ async function convertArchivedReleaseEventSeries(): Promise<{
 			romajiName: archived.translatedName.romaji,
 		});
 
-		if (archived.names !== undefined) {
+		if (archived.names) {
 			for (const name of archived.names) {
 				releaseEventSeriesNames.push({
 					id: undefined,
@@ -331,7 +330,7 @@ async function convertArchivedReleaseEventSeries(): Promise<{
 			}
 		}
 
-		if (archived.tags !== undefined) {
+		if (archived.tags) {
 			for (const tag of archived.tags) {
 				releaseEventSeriesTagUsages.push({
 					id: undefined,
@@ -342,7 +341,7 @@ async function convertArchivedReleaseEventSeries(): Promise<{
 			}
 		}
 
-		if (archived.webLinks !== undefined) {
+		if (archived.webLinks) {
 			for (const webLink of archived.webLinks) {
 				releaseEventSeriesWebLinks.push({
 					id: undefined,
@@ -385,10 +384,7 @@ async function convertArchivedReleaseEvents(): Promise<{
 		releaseEvents.push({
 			id: archived.id,
 			category: archived.category,
-			date:
-				archived.date !== undefined
-					? new Date(archived.date)
-					: undefined,
+			date: archived.date ? new Date(archived.date) : undefined,
 			description: archived.description,
 			mainPictureMime: archived.mainPictureMime,
 			seriesId: archived.series?.id,
@@ -400,7 +396,7 @@ async function convertArchivedReleaseEvents(): Promise<{
 			venueName: archived.venueName,
 		});
 
-		if (archived.artists !== undefined) {
+		if (archived.artists) {
 			for (const artist of archived.artists) {
 				releaseEventArtists.push({
 					id: undefined,
@@ -412,7 +408,7 @@ async function convertArchivedReleaseEvents(): Promise<{
 			}
 		}
 
-		if (archived.names !== undefined) {
+		if (archived.names) {
 			for (const name of archived.names) {
 				releaseEventNames.push({
 					id: undefined,
@@ -423,7 +419,7 @@ async function convertArchivedReleaseEvents(): Promise<{
 			}
 		}
 
-		if (archived.pvs !== undefined) {
+		if (archived.pvs) {
 			for (const pv of archived.pvs) {
 				releaseEventPVs.push({
 					id: undefined,
@@ -433,16 +429,15 @@ async function convertArchivedReleaseEvents(): Promise<{
 					pvType: pv.pvType,
 					service: pv.service,
 					extendedMetadata: JSON.stringify(pv.extendedMetadata),
-					publishDate:
-						pv.publishDate !== undefined
-							? new Date(pv.publishDate)
-							: undefined,
+					publishDate: pv.publishDate
+						? new Date(pv.publishDate)
+						: undefined,
 					releaseEventId: archived.id,
 				});
 			}
 		}
 
-		if (archived.tags !== undefined) {
+		if (archived.tags) {
 			for (const tag of archived.tags) {
 				releaseEventTagUsages.push({
 					id: undefined,
@@ -453,7 +448,7 @@ async function convertArchivedReleaseEvents(): Promise<{
 			}
 		}
 
-		if (archived.webLinks !== undefined) {
+		if (archived.webLinks) {
 			for (const webLink of archived.webLinks) {
 				releaseEventWebLinks.push({
 					id: undefined,
@@ -504,10 +499,9 @@ async function convertArchivedSongs(): Promise<{
 			notesOriginal: archived.notes,
 			notesEnglish: archived.notesEng,
 			originalVersionId: archived.originalVersion?.id,
-			publishDate:
-				archived.publishDate !== undefined
-					? new Date(archived.publishDate)
-					: undefined,
+			publishDate: archived.publishDate
+				? new Date(archived.publishDate)
+				: undefined,
 			releaseEventId: archived.releaseEvent?.id,
 			songType: archived.songType,
 			defaultNameLanguage: archived.translatedName.defaultLanguage,
@@ -516,7 +510,7 @@ async function convertArchivedSongs(): Promise<{
 			romajiName: archived.translatedName.romaji,
 		});
 
-		if (archived.artists !== undefined) {
+		if (archived.artists) {
 			for (const artist of archived.artists) {
 				songArtists.push({
 					id: undefined,
@@ -529,7 +523,7 @@ async function convertArchivedSongs(): Promise<{
 			}
 		}
 
-		if (archived.lyrics !== undefined) {
+		if (archived.lyrics) {
 			for (const lyrics of archived.lyrics) {
 				songLyrics.push({
 					id: undefined,
@@ -543,7 +537,7 @@ async function convertArchivedSongs(): Promise<{
 			}
 		}
 
-		if (archived.names !== undefined) {
+		if (archived.names) {
 			for (const name of archived.names) {
 				songNames.push({
 					id: undefined,
@@ -554,7 +548,7 @@ async function convertArchivedSongs(): Promise<{
 			}
 		}
 
-		if (archived.pvs !== undefined) {
+		if (archived.pvs) {
 			for (const pv of archived.pvs) {
 				songPVs.push({
 					id: undefined,
@@ -564,16 +558,15 @@ async function convertArchivedSongs(): Promise<{
 					pvType: pv.pvType,
 					service: pv.service,
 					extendedMetadata: JSON.stringify(pv.extendedMetadata),
-					publishDate:
-						pv.publishDate !== undefined
-							? new Date(pv.publishDate)
-							: undefined,
+					publishDate: pv.publishDate
+						? new Date(pv.publishDate)
+						: undefined,
 					songId: archived.id,
 				});
 			}
 		}
 
-		if (archived.tags !== undefined) {
+		if (archived.tags) {
 			for (const tag of archived.tags) {
 				songTagUsages.push({
 					id: undefined,
@@ -584,7 +577,7 @@ async function convertArchivedSongs(): Promise<{
 			}
 		}
 
-		if (archived.webLinks !== undefined) {
+		if (archived.webLinks) {
 			for (const webLink of archived.webLinks) {
 				songWebLinks.push({
 					id: undefined,
@@ -651,7 +644,7 @@ async function convertArchivedAlbums(): Promise<{
 			romajiName: archived.translatedName.romaji,
 		});
 
-		if (archived.artists !== undefined) {
+		if (archived.artists) {
 			for (const artist of archived.artists) {
 				albumArtists.push({
 					id: undefined,
@@ -664,7 +657,7 @@ async function convertArchivedAlbums(): Promise<{
 			}
 		}
 
-		if (archived.discs !== undefined) {
+		if (archived.discs) {
 			for (const disc of archived.discs) {
 				albumDiscProperties.push({
 					id: undefined,
@@ -676,7 +669,7 @@ async function convertArchivedAlbums(): Promise<{
 			}
 		}
 
-		if (archived.identifiers !== undefined) {
+		if (archived.identifiers) {
 			for (const identifier of archived.identifiers) {
 				albumIdentifiers.push({
 					id: undefined,
@@ -686,7 +679,7 @@ async function convertArchivedAlbums(): Promise<{
 			}
 		}
 
-		if (archived.names !== undefined) {
+		if (archived.names) {
 			for (const name of archived.names) {
 				albumNames.push({
 					id: undefined,
@@ -697,7 +690,7 @@ async function convertArchivedAlbums(): Promise<{
 			}
 		}
 
-		if (archived.pictures !== undefined) {
+		if (archived.pictures) {
 			for (const picture of archived.pictures) {
 				albumPictureFiles.push({
 					id: undefined,
@@ -709,7 +702,7 @@ async function convertArchivedAlbums(): Promise<{
 			}
 		}
 
-		if (archived.pvs !== undefined) {
+		if (archived.pvs) {
 			for (const pv of archived.pvs) {
 				albumPVs.push({
 					id: undefined,
@@ -719,16 +712,15 @@ async function convertArchivedAlbums(): Promise<{
 					pvType: pv.pvType,
 					service: pv.service,
 					extendedMetadata: JSON.stringify(pv.extendedMetadata),
-					publishDate:
-						pv.publishDate !== undefined
-							? new Date(pv.publishDate)
-							: undefined,
+					publishDate: pv.publishDate
+						? new Date(pv.publishDate)
+						: undefined,
 					albumId: archived.id,
 				});
 			}
 		}
 
-		if (archived.songs !== undefined) {
+		if (archived.songs) {
 			for (const song of archived.songs) {
 				albumSongs.push({
 					id: undefined,
@@ -741,7 +733,7 @@ async function convertArchivedAlbums(): Promise<{
 			}
 		}
 
-		if (archived.tags !== undefined) {
+		if (archived.tags) {
 			for (const tag of archived.tags) {
 				albumTagUsages.push({
 					id: undefined,
@@ -752,7 +744,7 @@ async function convertArchivedAlbums(): Promise<{
 			}
 		}
 
-		if (archived.webLinks !== undefined) {
+		if (archived.webLinks) {
 			for (const webLink of archived.webLinks) {
 				albumWebLinks.push({
 					id: undefined,
