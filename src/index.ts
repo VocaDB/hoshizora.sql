@@ -1,4 +1,4 @@
-import { TableNames } from '@/TableNames';
+import { TableName, TableNames } from '@/TableNames';
 import { Album, AlbumTableColumnNames } from '@/entities/Album';
 import {
 	AlbumDiscProperties,
@@ -873,7 +873,7 @@ function* generateSql(): Generator<string> {
 }
 
 function writeToCsv<T extends object>(
-	tableName: typeof TableNames[number],
+	tableName: TableName,
 	columnNames: readonly string[],
 	items: T[],
 ): Promise<void> {
