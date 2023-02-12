@@ -1,4 +1,3 @@
-import { TableName, TableNames } from '@/TableNames';
 import { Album, AlbumTableColumnNames } from '@/entities/Album';
 import {
 	AlbumDiscProperties,
@@ -87,6 +86,7 @@ import { ArchivedReleaseEventContract } from '@/models/ArchivedReleaseEventContr
 import { ArchivedReleaseEventSeriesContract } from '@/models/ArchivedReleaseEventSeriesContract';
 import { ArchivedSongContract } from '@/models/ArchivedSongContract';
 import { ArchivedTagContract } from '@/models/ArchivedTagContract';
+import { snapshot } from '@/snapshot';
 import { existsSync } from 'node:fs';
 import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
@@ -772,104 +772,56 @@ async function convertArchivedAlbums(): Promise<{
 	};
 }
 
+export type TableName = typeof snapshot.tables[number]['name'];
+
+// https://stackoverflow.com/questions/49401866/all-possible-keys-of-an-union-type/49402091#49402091
+type ValuesOfUnion<T> = T extends T ? T[keyof T] : never;
+
+type TableColumns = typeof snapshot.tables[number]['columns'];
+export type TableColumn = ValuesOfUnion<TableColumns>;
+
 function* generateSql(): Generator<string> {
-	for (const tableName of TableNames) {
-		yield `drop table if exists \`${tableName}\`;`;
+	const tables = snapshot.tables;
+
+	for (const table of tables) {
+		yield `drop table if exists \`${table.name}\`;`;
 	}
 
-	yield "create table `artists` (`id` int unsigned not null auto_increment primary key, `artist_type` enum('Unknown', 'Circle', 'Label', 'Producer', 'Animator', 'Illustrator', 'Lyricist', 'Vocaloid', 'UTAU', 'CeVIO', 'OtherVoiceSynthesizer', 'OtherVocalist', 'OtherGroup', 'OtherIndividual', 'Utaite', 'Band', 'Vocalist', 'Character', 'SynthesizerV', 'CoverArtist') not null, `base_voicebank_id` int unsigned null, `description_original` text not null, `description_english` text not null, `main_picture_mime` varchar(32) null, `release_date` datetime null, `default_name_language` enum('Unspecified', 'Japanese', 'Romaji', 'English') not null, `japanese_name` varchar(255) not null, `english_name` varchar(255) not null, `romaji_name` varchar(255) not null) default character set utf8mb4 engine = InnoDB;";
-	yield "create table `artists_for_artists` (`id` int unsigned not null auto_increment primary key, `group_id` int unsigned not null, `member_id` int unsigned not null, `link_type` enum('CharacterDesigner', 'Group', 'Illustrator', 'Manager', 'VoiceProvider') not null) default character set utf8mb4 engine = InnoDB;";
-	yield 'create table `artist_names` (`id` int unsigned not null auto_increment primary key, `language` varchar(16) not null, `value` varchar(255) not null, `artist_id` int unsigned not null) default character set utf8mb4 engine = InnoDB;';
-	yield 'create table `artist_picture_files` (`id` int unsigned not null auto_increment primary key, `created` datetime not null, `mime` varchar(32) not null, `name` varchar(200) not null, `artist_id` int unsigned not null) default character set utf8mb4 engine = InnoDB;';
-	yield "create table `artist_web_links` (`id` int unsigned not null auto_increment primary key, `category` enum('Official', 'Commercial', 'Reference', 'Other') not null, `description` varchar(512) not null, `url` varchar(512) not null, `disabled` tinyint(1) not null, `artist_id` int unsigned not null) default character set utf8mb4 engine = InnoDB;";
-	yield "create table `release_event_series` (`id` int unsigned not null auto_increment primary key, `category` enum('Unspecified', 'AlbumRelease', 'Anniversary', 'Club', 'Concert', 'Contest', 'Convention', 'Other', 'Festival') not null, `description` text not null, `main_picture_mime` varchar(32) null, `default_name_language` enum('Unspecified', 'Japanese', 'Romaji', 'English') not null, `japanese_name` varchar(255) not null, `english_name` varchar(255) not null, `romaji_name` varchar(255) not null) default character set utf8mb4 engine = InnoDB;";
-	yield "create table `release_events` (`id` int unsigned not null auto_increment primary key, `category` enum('Unspecified', 'AlbumRelease', 'Anniversary', 'Club', 'Concert', 'Contest', 'Convention', 'Other', 'Festival') not null, `date` datetime null, `description` text not null, `main_picture_mime` varchar(32) null, `series_id` int unsigned null, `series_number` int not null, `default_name_language` enum('Unspecified', 'Japanese', 'Romaji', 'English') not null, `japanese_name` varchar(255) not null, `english_name` varchar(255) not null, `romaji_name` varchar(255) not null, `venue_name` varchar(1000) null) default character set utf8mb4 engine = InnoDB;";
-	yield 'create table `release_event_names` (`id` int unsigned not null auto_increment primary key, `language` varchar(16) not null, `value` varchar(255) not null, `release_event_id` int unsigned not null) default character set utf8mb4 engine = InnoDB;';
-	yield "create table `pvs_for_release_events` (`id` int unsigned not null auto_increment primary key, `author` varchar(100) not null, `name` varchar(200) not null, `pv_id` varchar(255) not null, `pv_type` enum('Original', 'Reprint', 'Other') not null, `service` enum('NicoNicoDouga', 'Youtube', 'SoundCloud', 'Vimeo', 'Piapro', 'Bilibili', 'File', 'LocalFile', 'Creofuga', 'Bandcamp') not null, `extended_metadata` json null, `publish_date` datetime null, `release_event_id` int unsigned not null) default character set utf8mb4 engine = InnoDB;";
-	yield 'create table `artists_for_release_events` (`id` int unsigned not null auto_increment primary key, `artist_id` int unsigned null, `name` varchar(255) null, `roles` int not null, `release_event_id` int unsigned not null) default character set utf8mb4 engine = InnoDB;';
-	yield "create table `albums` (`id` int unsigned not null auto_increment primary key, `description_original` text not null, `description_english` text not null, `disc_type` enum('Unknown', 'Album', 'Single', 'EP', 'SplitAlbum', 'Compilation', 'Video', 'Artbook', 'Game', 'Fanmade', 'Instrumental', 'Other') not null, `main_picture_mime` varchar(32) null, `original_release_cat_num` varchar(50) null, `original_release_day` int null, `original_release_month` int null, `original_release_release_event_id` int unsigned null, `original_release_year` int null, `default_name_language` enum('Unspecified', 'Japanese', 'Romaji', 'English') not null, `japanese_name` varchar(255) not null, `english_name` varchar(255) not null, `romaji_name` varchar(255) not null) default character set utf8mb4 engine = InnoDB;";
-	yield "create table `pvs_for_albums` (`id` int unsigned not null auto_increment primary key, `author` varchar(100) not null, `name` varchar(200) not null, `pv_id` varchar(255) not null, `pv_type` enum('Original', 'Reprint', 'Other') not null, `service` enum('NicoNicoDouga', 'Youtube', 'SoundCloud', 'Vimeo', 'Piapro', 'Bilibili', 'File', 'LocalFile', 'Creofuga', 'Bandcamp') not null, `extended_metadata` json null, `publish_date` datetime null, `album_id` int unsigned not null) default character set utf8mb4 engine = InnoDB;";
-	yield 'create table `artists_for_albums` (`id` int unsigned not null auto_increment primary key, `artist_id` int unsigned null, `album_id` int unsigned not null, `name` varchar(255) null, `is_support` tinyint(1) not null, `roles` int not null) default character set utf8mb4 engine = InnoDB;';
-	yield "create table `album_web_links` (`id` int unsigned not null auto_increment primary key, `category` enum('Official', 'Commercial', 'Reference', 'Other') not null, `description` varchar(512) not null, `url` varchar(512) not null, `disabled` tinyint(1) not null, `album_id` int unsigned not null) default character set utf8mb4 engine = InnoDB;";
-	yield 'create table `album_picture_files` (`id` int unsigned not null auto_increment primary key, `created` datetime not null, `mime` varchar(32) not null, `name` varchar(200) not null, `album_id` int unsigned not null) default character set utf8mb4 engine = InnoDB;';
-	yield 'create table `album_names` (`id` int unsigned not null auto_increment primary key, `language` varchar(16) not null, `value` varchar(255) not null, `album_id` int unsigned not null) default character set utf8mb4 engine = InnoDB;';
-	yield 'create table `album_identifiers` (`id` int unsigned not null auto_increment primary key, `album_id` int unsigned not null, `value` varchar(50) not null) default character set utf8mb4 engine = InnoDB;';
-	yield "create table `album_disc_properties` (`id` int unsigned not null auto_increment primary key, `album_id` int unsigned not null, `disc_number` int not null, `media_type` enum('Audio', 'Video') not null, `name` varchar(200) not null) default character set utf8mb4 engine = InnoDB;";
-	yield 'create table `release_event_series_names` (`id` int unsigned not null auto_increment primary key, `language` varchar(16) not null, `value` varchar(255) not null, `release_event_series_id` int unsigned not null) default character set utf8mb4 engine = InnoDB;';
-	yield "create table `release_event_series_web_links` (`id` int unsigned not null auto_increment primary key, `category` enum('Official', 'Commercial', 'Reference', 'Other') not null, `description` varchar(512) not null, `url` varchar(512) not null, `disabled` tinyint(1) not null, `release_event_series_id` int unsigned not null) default character set utf8mb4 engine = InnoDB;";
-	yield "create table `release_event_web_links` (`id` int unsigned not null auto_increment primary key, `category` enum('Official', 'Commercial', 'Reference', 'Other') not null, `description` varchar(512) not null, `url` varchar(512) not null, `disabled` tinyint(1) not null, `release_event_id` int unsigned not null) default character set utf8mb4 engine = InnoDB;";
-	yield "create table `songs` (`id` int unsigned not null auto_increment primary key, `length_seconds` int not null, `max_milli_bpm` int null, `min_milli_bpm` int null, `nico_id` varchar(20) null, `notes_original` text not null, `notes_english` text not null, `original_version_id` int unsigned null, `publish_date` datetime null, `release_event_id` int unsigned null, `song_type` enum('Unspecified', 'Original', 'Remaster', 'Remix', 'Cover', 'Arrangement', 'Instrumental', 'Mashup', 'MusicPV', 'DramaPV', 'Live', 'Illustration', 'Other') not null, `default_name_language` enum('Unspecified', 'Japanese', 'Romaji', 'English') not null, `japanese_name` varchar(255) not null, `english_name` varchar(255) not null, `romaji_name` varchar(255) not null) default character set utf8mb4 engine = InnoDB;";
-	yield "create table `pvs_for_songs` (`id` int unsigned not null auto_increment primary key, `author` varchar(100) not null, `name` varchar(200) not null, `pv_id` varchar(255) not null, `pv_type` enum('Original', 'Reprint', 'Other') not null, `service` enum('NicoNicoDouga', 'Youtube', 'SoundCloud', 'Vimeo', 'Piapro', 'Bilibili', 'File', 'LocalFile', 'Creofuga', 'Bandcamp') not null, `extended_metadata` json null, `publish_date` datetime null, `song_id` int unsigned not null) default character set utf8mb4 engine = InnoDB;";
-	yield "create table `lyrics_for_songs` (`id` int unsigned not null auto_increment primary key, `song_id` int unsigned not null, `source` varchar(255) not null, `text` text not null, `culture_code` varchar(10) not null, `translation_type` enum('Original', 'Romanized', 'Translation') not null, `url` varchar(500) not null) default character set utf8mb4 engine = InnoDB;";
-	yield 'create table `artists_for_songs` (`id` int unsigned not null auto_increment primary key, `artist_id` int unsigned null, `name` varchar(255) null, `roles` int not null, `song_id` int unsigned not null, `is_support` tinyint(1) not null) default character set utf8mb4 engine = InnoDB;';
-	yield 'create table `songs_in_albums` (`id` int unsigned not null auto_increment primary key, `album_id` int unsigned not null, `disc_number` int not null, `name` varchar(255) null, `song_id` int unsigned null, `track_number` int not null) default character set utf8mb4 engine = InnoDB;';
-	yield 'create table `song_names` (`id` int unsigned not null auto_increment primary key, `language` varchar(16) not null, `value` varchar(255) not null, `song_id` int unsigned not null) default character set utf8mb4 engine = InnoDB;';
-	yield "create table `song_web_links` (`id` int unsigned not null auto_increment primary key, `category` enum('Official', 'Commercial', 'Reference', 'Other') not null, `description` varchar(512) not null, `url` varchar(512) not null, `disabled` tinyint(1) not null, `song_id` int unsigned not null) default character set utf8mb4 engine = InnoDB;";
-	yield "create table `tags` (`id` int unsigned not null auto_increment primary key, `category_name` varchar(30) not null, `description_original` text not null, `description_english` text not null, `hide_from_suggestions` tinyint(1) not null, `parent_id` int unsigned null, `default_name_language` enum('Unspecified', 'Japanese', 'Romaji', 'English') not null, `japanese_name` varchar(255) not null, `english_name` varchar(255) not null, `romaji_name` varchar(255) not null, `targets` int not null, `thumb_mime` varchar(30) null) default character set utf8mb4 engine = InnoDB;";
-	yield 'create table `song_tag_usages` (`id` int unsigned not null auto_increment primary key, `tag_id` int unsigned not null, `count` int not null, `song_id` int unsigned not null) default character set utf8mb4 engine = InnoDB;';
-	yield 'create table `release_event_tag_usages` (`id` int unsigned not null auto_increment primary key, `tag_id` int unsigned not null, `count` int not null, `release_event_id` int unsigned not null) default character set utf8mb4 engine = InnoDB;';
-	yield 'create table `release_event_series_tag_usages` (`id` int unsigned not null auto_increment primary key, `tag_id` int unsigned not null, `count` int not null, `release_event_series_id` int unsigned not null) default character set utf8mb4 engine = InnoDB;';
-	yield 'create table `related_tags` (`id` int unsigned not null auto_increment primary key, `owner_tag_id` int unsigned not null, `linked_tag_id` int unsigned not null) default character set utf8mb4 engine = InnoDB;';
-	yield 'create table `artist_tag_usages` (`id` int unsigned not null auto_increment primary key, `tag_id` int unsigned not null, `count` int not null, `artist_id` int unsigned not null) default character set utf8mb4 engine = InnoDB;';
-	yield 'create table `album_tag_usages` (`id` int unsigned not null auto_increment primary key, `tag_id` int unsigned not null, `count` int not null, `album_id` int unsigned not null) default character set utf8mb4 engine = InnoDB;';
-	yield 'create table `tag_names` (`id` int unsigned not null auto_increment primary key, `language` varchar(16) not null, `value` varchar(255) not null, `tag_id` int unsigned not null) default character set utf8mb4 engine = InnoDB;';
-	yield "create table `tag_web_links` (`id` int unsigned not null auto_increment primary key, `category` enum('Official', 'Commercial', 'Reference', 'Other') not null, `description` varchar(512) not null, `url` varchar(512) not null, `disabled` tinyint(1) not null, `tag_id` int unsigned not null) default character set utf8mb4 engine = InnoDB;";
+	for (const table of tables) {
+		yield `create table \`${table.name}\` (${Object.entries(table.columns)
+			.map(([, value]: [string, TableColumn]) => {
+				const result: string[] = [];
+				result.push(`\`${value.name}\``);
+				result.push(value.type);
+				if (value.unsigned) {
+					result.push('unsigned');
+				}
+				result.push(value.nullable ? 'null' : 'not null');
+				if (value.autoincrement) {
+					result.push('auto_increment');
+				}
+				if (value.primary) {
+					result.push('primary key');
+				}
+				return `${result.join(' ')}`;
+			})
+			.join(', ')}) default character set utf8mb4 engine = InnoDB;`;
+	}
 
-	for (const tableName of TableNames) {
+	for (const table of tables) {
 		yield `load data local infile '${resolve(
 			outputPath,
-			`${tableName}.csv`,
-		)}' replace into table ${tableName} character set utf8mb4 fields terminated by ',' optionally enclosed by "'" ignore 1 lines;`;
+			`${table.name}.csv`,
+		)}' replace into table ${
+			table.name
+		} character set utf8mb4 fields terminated by ',' optionally enclosed by "'" ignore 1 lines;`;
 	}
 
-	yield 'alter table `artists` add index `artists_base_voicebank_id_index`(`base_voicebank_id`);';
-	yield 'alter table `artists_for_artists` add index `artists_for_artists_group_id_index`(`group_id`);';
-	yield 'alter table `artists_for_artists` add index `artists_for_artists_member_id_index`(`member_id`);';
-	yield 'alter table `artist_names` add index `artist_names_artist_id_index`(`artist_id`);';
-	yield 'alter table `artist_picture_files` add index `artist_picture_files_artist_id_index`(`artist_id`);';
-	yield 'alter table `artist_web_links` add index `artist_web_links_artist_id_index`(`artist_id`);';
-	yield 'alter table `release_events` add index `release_events_series_id_index`(`series_id`);';
-	yield 'alter table `release_event_names` add index `release_event_names_release_event_id_index`(`release_event_id`);';
-	yield 'alter table `pvs_for_release_events` add index `pvs_for_release_events_release_event_id_index`(`release_event_id`);';
-	yield 'alter table `artists_for_release_events` add index `artists_for_release_events_artist_id_index`(`artist_id`);';
-	yield 'alter table `artists_for_release_events` add index `artists_for_release_events_release_event_id_index`(`release_event_id`);';
-	yield 'alter table `albums` add index `albums_original_release_release_event_id_index`(`original_release_release_event_id`);';
-	yield 'alter table `pvs_for_albums` add index `pvs_for_albums_album_id_index`(`album_id`);';
-	yield 'alter table `artists_for_albums` add index `artists_for_albums_artist_id_index`(`artist_id`);';
-	yield 'alter table `artists_for_albums` add index `artists_for_albums_album_id_index`(`album_id`);';
-	yield 'alter table `album_web_links` add index `album_web_links_album_id_index`(`album_id`);';
-	yield 'alter table `album_picture_files` add index `album_picture_files_album_id_index`(`album_id`);';
-	yield 'alter table `album_names` add index `album_names_album_id_index`(`album_id`);';
-	yield 'alter table `album_identifiers` add index `album_identifiers_album_id_index`(`album_id`);';
-	yield 'alter table `album_disc_properties` add index `album_disc_properties_album_id_index`(`album_id`);';
-	yield 'alter table `release_event_series_names` add index `release_event_series_names_release_event_series_id_index`(`release_event_series_id`);';
-	yield 'alter table `release_event_series_web_links` add index `release_event_series_web_links_release_event_series_id_index`(`release_event_series_id`);';
-	yield 'alter table `release_event_web_links` add index `release_event_web_links_release_event_id_index`(`release_event_id`);';
-	yield 'alter table `songs` add index `songs_original_version_id_index`(`original_version_id`);';
-	yield 'alter table `songs` add index `songs_release_event_id_index`(`release_event_id`);';
-	yield 'alter table `pvs_for_songs` add index `pvs_for_songs_song_id_index`(`song_id`);';
-	yield 'alter table `lyrics_for_songs` add index `lyrics_for_songs_song_id_index`(`song_id`);';
-	yield 'alter table `artists_for_songs` add index `artists_for_songs_artist_id_index`(`artist_id`);';
-	yield 'alter table `artists_for_songs` add index `artists_for_songs_song_id_index`(`song_id`);';
-	yield 'alter table `songs_in_albums` add index `songs_in_albums_album_id_index`(`album_id`);';
-	yield 'alter table `songs_in_albums` add index `songs_in_albums_song_id_index`(`song_id`);';
-	yield 'alter table `song_names` add index `song_names_song_id_index`(`song_id`);';
-	yield 'alter table `song_web_links` add index `song_web_links_song_id_index`(`song_id`);';
-	yield 'alter table `tags` add index `tags_parent_id_index`(`parent_id`);';
-	yield 'alter table `song_tag_usages` add index `song_tag_usages_tag_id_index`(`tag_id`);';
-	yield 'alter table `song_tag_usages` add index `song_tag_usages_song_id_index`(`song_id`);';
-	yield 'alter table `release_event_tag_usages` add index `release_event_tag_usages_tag_id_index`(`tag_id`);';
-	yield 'alter table `release_event_tag_usages` add index `release_event_tag_usages_release_event_id_index`(`release_event_id`);';
-	yield 'alter table `release_event_series_tag_usages` add index `release_event_series_tag_usages_tag_id_index`(`tag_id`);';
-	yield 'alter table `release_event_series_tag_usages` add index `release_event_series_tag_usages_release_event_series_id_index`(`release_event_series_id`);';
-	yield 'alter table `related_tags` add index `related_tags_owner_tag_id_index`(`owner_tag_id`);';
-	yield 'alter table `related_tags` add index `related_tags_linked_tag_id_index`(`linked_tag_id`);';
-	yield 'alter table `artist_tag_usages` add index `artist_tag_usages_tag_id_index`(`tag_id`);';
-	yield 'alter table `artist_tag_usages` add index `artist_tag_usages_artist_id_index`(`artist_id`);';
-	yield 'alter table `album_tag_usages` add index `album_tag_usages_tag_id_index`(`tag_id`);';
-	yield 'alter table `album_tag_usages` add index `album_tag_usages_album_id_index`(`album_id`);';
-	yield 'alter table `tag_names` add index `tag_names_tag_id_index`(`tag_id`);';
-	yield 'alter table `tag_web_links` add index `tag_web_links_tag_id_index`(`tag_id`);';
+	for (const table of tables) {
+		for (const index of table.indexes) {
+			yield `alter table \`${table.name}\` add index \`${index.keyName}\`(\`${index.columnNames}\`);`;
+		}
+	}
 }
 
 function writeToCsv<T extends object>(
