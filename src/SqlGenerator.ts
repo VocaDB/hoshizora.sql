@@ -55,7 +55,15 @@ export class MariaDbSqlGenerator extends SqlGenerator {
 
 		for (const table of tables) {
 			for (const index of table.indexes) {
-				yield `alter table \`${table.name}\` add index \`${index.keyName}\`(\`${index.columnNames}\`);`;
+				if (index.keyName === 'PRIMARY') {
+					continue;
+				}
+
+				yield `alter table \`${table.name}\` add index \`${
+					index.keyName
+				}\`(${index.columnNames
+					.map((columnName) => `\`${columnName}\``)
+					.join(', ')});`;
 			}
 		}
 	}

@@ -44,6 +44,13 @@ async function main(): Promise<void> {
 		await mkdir(outputPath);
 	}
 
+	for (const [key, value] of Object.entries(sqlGenerators)) {
+		await writeFile(
+			resolve(outputPath, `${key}.sql`),
+			Array.from(value.generateSql()).join('\n'),
+		);
+	}
+
 	const csvWriter = new CsvWriter(outputPath);
 
 	const { tags, tagNames, tagWebLinks, relatedTags } = await loadTags();
@@ -248,13 +255,6 @@ async function main(): Promise<void> {
 			albumWebLinks,
 		),
 	]);
-
-	for (const [key, value] of Object.entries(sqlGenerators)) {
-		await writeFile(
-			resolve(outputPath, `${key}.sql`),
-			Array.from(value.generateSql()).join('\n'),
-		);
-	}
 }
 
 main();
