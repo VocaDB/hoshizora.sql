@@ -126,7 +126,7 @@ async function* loadEntries<TArchivedEntry extends ArchivedEntry>(
 	}
 }
 
-async function convertArchivedTags(): Promise<{
+async function loadTags(): Promise<{
 	tags: Tag[];
 	tagNames: TagName[];
 	tagWebLinks: TagWebLink[];
@@ -191,7 +191,7 @@ async function convertArchivedTags(): Promise<{
 	return { tags, tagNames, tagWebLinks, relatedTags };
 }
 
-async function convertArchivedArtists(): Promise<{
+async function loadArtists(): Promise<{
 	artists: Artist[];
 	artistGroups: ArtistForArtist[];
 	artistNames: ArtistName[];
@@ -294,7 +294,7 @@ async function convertArchivedArtists(): Promise<{
 	};
 }
 
-async function convertArchivedReleaseEventSeries(): Promise<{
+async function loadReleaseEventSeries(): Promise<{
 	releaseEventSeries: ReleaseEventSeries[];
 	releaseEventSeriesNames: ReleaseEventSeriesName[];
 	releaseEventSeriesTagUsages: ReleaseEventSeriesTagUsage[];
@@ -363,7 +363,7 @@ async function convertArchivedReleaseEventSeries(): Promise<{
 	};
 }
 
-async function convertArchivedReleaseEvents(): Promise<{
+async function loadReleaseEvents(): Promise<{
 	releaseEvents: ReleaseEvent[];
 	releaseEventArtists: ArtistForReleaseEvent[];
 	releaseEventNames: ReleaseEventName[];
@@ -472,7 +472,7 @@ async function convertArchivedReleaseEvents(): Promise<{
 	};
 }
 
-async function convertArchivedSongs(): Promise<{
+async function loadSongs(): Promise<{
 	songs: Song[];
 	songArtists: ArtistForSong[];
 	songLyrics: LyricsForSong[];
@@ -602,7 +602,7 @@ async function convertArchivedSongs(): Promise<{
 	};
 }
 
-async function convertArchivedAlbums(): Promise<{
+async function loadAlbums(): Promise<{
 	albums: Album[];
 	albumArtists: ArtistForAlbum[];
 	albumDiscProperties: AlbumDiscProperties[];
@@ -875,8 +875,7 @@ async function main(): Promise<void> {
 		await mkdir(outputPath);
 	}
 
-	const { tags, tagNames, tagWebLinks, relatedTags } =
-		await convertArchivedTags();
+	const { tags, tagNames, tagWebLinks, relatedTags } = await loadTags();
 	await Promise.all([
 		writeToCsv('tags', TagTableColumnNames, tags),
 		writeToCsv('tag_names', NameTableColumnNames, tagNames),
@@ -891,7 +890,7 @@ async function main(): Promise<void> {
 		artistPictureFiles,
 		artistTagUsages,
 		artistWebLinks,
-	} = await convertArchivedArtists();
+	} = await loadArtists();
 	await Promise.all([
 		writeToCsv('artists', ArtistTableColumnNames, artists),
 		writeToCsv(
@@ -918,7 +917,7 @@ async function main(): Promise<void> {
 		releaseEventSeriesNames,
 		releaseEventSeriesTagUsages,
 		releaseEventSeriesWebLinks,
-	} = await convertArchivedReleaseEventSeries();
+	} = await loadReleaseEventSeries();
 	await Promise.all([
 		writeToCsv(
 			'release_event_series',
@@ -949,7 +948,7 @@ async function main(): Promise<void> {
 		releaseEventPVs,
 		releaseEventTagUsages,
 		releaseEventWebLinks,
-	} = await convertArchivedReleaseEvents();
+	} = await loadReleaseEvents();
 	await Promise.all([
 		writeToCsv(
 			'release_events',
@@ -991,7 +990,7 @@ async function main(): Promise<void> {
 		songPVs,
 		songTagUsages,
 		songWebLinks,
-	} = await convertArchivedSongs();
+	} = await loadSongs();
 	await Promise.all([
 		writeToCsv('songs', SongTableColumnNames, songs),
 		writeToCsv(
@@ -1021,7 +1020,7 @@ async function main(): Promise<void> {
 		albumSongs,
 		albumTagUsages,
 		albumWebLinks,
-	} = await convertArchivedAlbums();
+	} = await loadAlbums();
 	await Promise.all([
 		writeToCsv('albums', AlbumTableColumnNames, albums),
 		writeToCsv(
