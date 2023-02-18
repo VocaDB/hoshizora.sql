@@ -71,7 +71,63 @@ export class MariaDbSqlGenerator extends SqlGenerator {
 
 export class PostgresSqlGenerator extends SqlGenerator {
 	*generateSql(): Generator<string> {
-		// TODO: implement
-		return;
+		const tables = snapshot.tables;
+
+		for (const table of tables) {
+			yield `drop table if exists ${table.name};`;
+		}
+
+		for (const table of tables) {
+			yield `create table ${table.name} (${Object.entries(table.columns)
+				.map(([, value]: [string, TableColumn]) => {
+					const result: string[] = [];
+					result.push(value.name);
+					if (value.autoincrement) {
+						result.push('serial');
+					} else {
+						switch (value.mappedType) {
+							case 'enum':
+								result.push('varchar(255)' /* TODO: enum */);
+								break;
+							case 'datetime':
+								result.push('timestamp');
+								break;
+							case 'boolean':
+								result.push('boolean');
+								break;
+							default:
+								result.push(value.type);
+								break;
+						}
+					}
+					result.push(value.nullable ? 'null' : 'not null');
+					if (value.primary) {
+						result.push('primary key');
+					}
+					return `${result.join(' ')}`;
+				})
+				.join(', ')});`;
+		}
+
+		for (const table of tables) {
+			yield `copy ${table.name} from '${resolve(
+				this.outputPath,
+				`${table.name}.csv`,
+			)}' (format csv, header true, delimiter(','));`;
+		}
+
+		for (const table of tables) {
+			for (const index of table.indexes) {
+				if (index.keyName === 'PRIMARY') {
+					continue;
+				}
+
+				yield `create index ${index.keyName} on ${
+					table.name
+				}(${index.columnNames
+					.map((columnName) => columnName)
+					.join(', ')});`;
+			}
+		}
 	}
 }
